@@ -10,7 +10,6 @@
 
 name: tracking-barbell-exercises
 channels:
-  - anaconda
   - conda-forge
   - defaults
 dependencies:

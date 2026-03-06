@@ -15,7 +15,7 @@ df = pd.read_pickle("../../data/interim/01_data_processed.pkl")
 
 set_df = df[df["set"] == 1]
 plt.plot(set_df["acc_y"])
-
+plt.show()
 plt.plot(set_df["acc_y"].reset_index(drop=True))
 
 # --------------------------------------------------------------
@@ -40,6 +40,38 @@ for label in df["label"].unique():
     plt.legend()
     plt.show()
 
+
+# --------------------------------------------------------------
+# Plot Compare Accelerometer Signals Across Exercises in one figure
+# --------------------------------------------------------------
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+# Loop through each exercise label
+for label in df["label"].unique():
+
+    subset = df[df["label"] == label]
+
+    # Take the first 100 samples for comparison
+    signal = subset["acc_y"].iloc[:100].reset_index(drop=True)
+
+    # Plot on the same axis
+    ax.plot(signal, label=label)
+
+# Labels and formatting
+ax.set_title("Accelerometer Y-axis Comparison Across Exercises")
+ax.set_xlabel("Samples")
+ax.set_ylabel("Acceleration (acc_y)")
+ax.legend()
+ax.grid(True)
+
+plt.show()
+output_dir = "../../Reports/Figures"
+fig.savefig(
+    f"{output_dir}/Compare Accelerometer Signals Across Exercises.png",
+    dpi=300,
+    bbox_inches="tight",
+)
 # --------------------------------------------------------------
 # Adjust plot settings
 # --------------------------------------------------------------

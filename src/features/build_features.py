@@ -1,16 +1,24 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+file_path = os.path.join(base_dir, "data/interim/02_outliers_removed_chauvenets.pkl")
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from DataTransformation import LowPassFilter, PrincipalComponentAnalysis
 from TemporalAbstraction import NumericalAbstraction
-from FrequencyAbstraction import FrequencyAbstraction
-
+from FrequencyAbstraction import FourierTransformation
+from sklearn.cluster import KMeans
 
 # --------------------------------------------------------------
 # Load data
 # --------------------------------------------------------------
 
-df = pd.read_pickle("../../data/interim/02_outliers_removed_chauvenets.pkl")
+df = pd.read_pickle(file_path)
 df.info()
 predictor_columns = list(df.columns[:6])
 
@@ -130,32 +138,98 @@ for s in df_temporal["set"].unique():
         subset = NumAbs.abstract_numerical(df_temporal, [col], ws,"std")
     df_temporal_list.append(subset)
 
-df_temporal = pd.concat(df_temporal_list, ignore_index=True)
+df_temporal = pd.concat(df_temporal_list)
 
 df_temporal.info()
+
+subset[["acc_y", "acc_y_temp_mean_ws_5", "acc_y_temp_std_ws_5"]].plot(subplots=True, figsize=(20, 10))
+subset[["gyr_y", "gyr_y_temp_mean_ws_5", "gyr_y_temp_std_ws_5"]].plot(subplots=True, figsize=(20, 10))
 # --------------------------------------------------------------
 # Frequency features
 # --------------------------------------------------------------
 
-df_freq = df_temporal.copy()
-FreqAbs = FrequencyAbstraction()
+df_freq = df_temporal.copy().reset_index
+FreqAbs = FourierTransformation()
 
-fs = 5
+fs = int(1000/200)
 ws = int(2800/200)
 
 df_freq = FreqAbs.abstract_frequency(df_freq, ["acc_y"], fs, ws)
+
+# visualize results
+subset = df_freq[df_freq["set"]==15]
+subset[["acc_y"]].plot()
+subset[
+    [
+        "acc_y_max_freq",
+        "acc_y_freq_weighted",
+        "acc_y_pse",
+        "acc_y_freq_1.429_Hz_ws_14",
+        "acc_y_freq_2.5_Hz_ws_14",
+    ]
+].plot(subplots=True, figsize=(20, 10))
+
+df_freq_list = []
+for s in df_freq["set"].unique():
+    print(f"Applying Fourier transformation to set {s}")
+    subset = df_freq[df_freq["set"]==s].reset_index(drop=True).copy()
+    subset = FreqAbs.abstract_frequency(subset, predictor_columns, ws, fs)
+    df_freq_list.append(subset)
+
+df_freq = pd.concat(df_freq_list).set_index("epoch (ms)", drop=True)
 
 
 # --------------------------------------------------------------
 # Dealing with overlapping windows
 # --------------------------------------------------------------
 
+df_freq = df_freq.dropna()
+
+df_freq = df_freq.iloc[::2]
+
 
 # --------------------------------------------------------------
 # Clustering
 # --------------------------------------------------------------
 
+df_cluster = df_freq.copy()
+
+cluster_columnns = ["acc_x", "acc_y", "acc_z"]
+k_values = range(2, 10)
+inertias = []
+
+for k in k_values:
+    subset = df_cluster[cluster_columnns]
+    kmeans = KMeans(n_clusters=k,n_init=20, random_state=42)
+    cluster_labels = kmeans.fit_predict(subset)
+    inertias.append(kmeans.inertia_)
+    
+plt.figure(figsize=(10, 10))
+plt.plot(k_values, inertias, marker="o")
+plt.xlabel("Number of Clusters (k)")
+plt.ylabel("Inertia")
+plt.title("Elbow Method for Optimal k")
+plt.show()
+
+kmeans = KMeans(n_clusters=5, n_init=20, random_state=42)
+subset = df_cluster[cluster_columnns]
+df_cluster["cluster"] = kmeans.fit_predict(subset)
+
+# plot clusters
+plt.figure(figsize=(10, 10))
+for i, col in enumerate(cluster_columnns):
+    plt.subplot(1, 3, i+1)
+    for cluster in df_cluster["cluster"].unique():
+        subset = df_cluster[df_cluster["cluster"]==cluster]
+        plt.scatter(subset[col], subset["cluster"], label=f"Cluster {cluster}")
+    plt.xlabel(col)
+    plt.ylabel("Cluster")
+    plt.title(f"{col} vs Cluster")
+    plt.legend()
+plt.show()
 
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
+
+df_cluster.to_pickle(os.path.join("../../data/interim/03_data_features.pkl"))

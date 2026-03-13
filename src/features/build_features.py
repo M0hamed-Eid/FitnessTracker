@@ -1,11 +1,3 @@
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-file_path = os.path.join(base_dir, "data/interim/02_outliers_removed_chauvenets.pkl")
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,7 +10,7 @@ from sklearn.cluster import KMeans
 # Load data
 # --------------------------------------------------------------
 
-df = pd.read_pickle(file_path)
+df = pd.read_pickle("../../data/interim/01_data_processed.pkl")
 df.info()
 predictor_columns = list(df.columns[:6])
 
@@ -232,4 +224,4 @@ plt.show()
 # Export dataset
 # --------------------------------------------------------------
 
-df_cluster.to_pickle(os.path.join("../../data/interim/03_data_features.pkl"))
+df_cluster.to_pickle("../../data/interim/03_data_features.pkl")

@@ -10,7 +10,7 @@ from sklearn.cluster import KMeans
 # Load data
 # --------------------------------------------------------------
 
-df = pd.read_pickle("../../data/interim/01_data_processed.pkl")
+df = pd.read_pickle("../../data/interim/02_outliers_removed_chauvenets.pkl")
 df.info()
 predictor_columns = list(df.columns[:6])
 
@@ -44,7 +44,8 @@ for set_id in df["set"].unique():
 duration_df = df.groupby("category")["duration"].mean()
 df.info()
 
-
+duration_df.iloc[0]/5
+duration_df.iloc[1]/10
 # --------------------------------------------------------------
 # Butterworth lowpass filter
 # --------------------------------------------------------------
@@ -52,9 +53,9 @@ df.info()
 df_lowpass = df.copy()
 LowPass = LowPassFilter()
 
-fs = 5
+fs = 1000/200
 
-cutoff = 1.3  # cutoff frequency in Hz
+cutoff = 1.2  # cutoff frequency in Hz
 
 df_lowpass = LowPass.low_pass_filter(df_lowpass, "acc_y", fs, cutoff, order=5)
 
@@ -63,9 +64,9 @@ print(subset["label"][0])
 
 fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(20, 10))
 ax[0].plot(subset ["acc_y"].reset_index(drop=True), label= "raw data")
-ax [1].plot(subset ["acc_y_lowpass"].reset_index(drop=True), label="butterworth filter")
-ax [0].legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), fancybox=True, shadow=True)
-ax [1].legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), fancybox=True, shadow=True)
+ax[1].plot(subset ["acc_y_lowpass"].reset_index(drop=True), label="butterworth filter")
+ax[0].legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), fancybox=True, shadow=True)
+ax[1].legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), fancybox=True, shadow=True)
 
 for col in predictor_columns:
     df_lowpass = LowPass.low_pass_filter(df_lowpass, col, fs, cutoff, order=5)
@@ -82,7 +83,7 @@ PCA = PrincipalComponentAnalysis()
 pca_values = PCA.determine_pc_explained_variance(df_pca, predictor_columns)
 
 plt.figure(figsize=(10, 10))
-plt.plot(range(1, len(pca_values) + 1), pca_values, marker="o")
+plt.plot(range(1, len(predictor_columns) + 1), pca_values)
 plt.xlabel("Principal Component Number")
 plt.ylabel("Explained Variance")
 plt.title("PCA Explained Variance")
@@ -116,7 +117,7 @@ df_temporal = df_squared.copy()
 NumAbs = NumericalAbstraction()
 
 predictor_columns = predictor_columns + ["acc_r", "gyr_r"]
-ws = 5
+ws = int(1000/200)
 
 for col in predictor_columns:
     df_temporal = NumAbs.abstract_numerical(df_temporal, [col], ws,"mean")
@@ -134,19 +135,19 @@ df_temporal = pd.concat(df_temporal_list)
 
 df_temporal.info()
 
-subset[["acc_y", "acc_y_temp_mean_ws_5", "acc_y_temp_std_ws_5"]].plot(subplots=True, figsize=(20, 10))
-subset[["gyr_y", "gyr_y_temp_mean_ws_5", "gyr_y_temp_std_ws_5"]].plot(subplots=True, figsize=(20, 10))
+subset[["acc_y", "acc_y_temp_mean_ws_5", "acc_y_temp_std_ws_5"]].plot()
+subset[["gyr_y", "gyr_y_temp_mean_ws_5", "gyr_y_temp_std_ws_5"]].plot()
 # --------------------------------------------------------------
 # Frequency features
 # --------------------------------------------------------------
 
-df_freq = df_temporal.copy().reset_index
+df_freq = df_squared.copy().reset_index()
 FreqAbs = FourierTransformation()
 
 fs = int(1000/200)
 ws = int(2800/200)
 
-df_freq = FreqAbs.abstract_frequency(df_freq, ["acc_y"], fs, ws)
+df_freq = FreqAbs.abstract_frequency(df_freq, ["acc_y"], ws, fs)
 
 # visualize results
 subset = df_freq[df_freq["set"]==15]
@@ -159,7 +160,7 @@ subset[
         "acc_y_freq_1.429_Hz_ws_14",
         "acc_y_freq_2.5_Hz_ws_14",
     ]
-].plot(subplots=True, figsize=(20, 10))
+].plot()
 
 df_freq_list = []
 for s in df_freq["set"].unique():
@@ -199,7 +200,7 @@ for k in k_values:
 plt.figure(figsize=(10, 10))
 plt.plot(k_values, inertias, marker="o")
 plt.xlabel("Number of Clusters (k)")
-plt.ylabel("Inertia")
+plt.ylabel("Inertia, sum of squared distances")
 plt.title("Elbow Method for Optimal k")
 plt.show()
 
@@ -208,16 +209,28 @@ subset = df_cluster[cluster_columnns]
 df_cluster["cluster"] = kmeans.fit_predict(subset)
 
 # plot clusters
-plt.figure(figsize=(10, 10))
-for i, col in enumerate(cluster_columnns):
-    plt.subplot(1, 3, i+1)
-    for cluster in df_cluster["cluster"].unique():
-        subset = df_cluster[df_cluster["cluster"]==cluster]
-        plt.scatter(subset[col], subset["cluster"], label=f"Cluster {cluster}")
-    plt.xlabel(col)
-    plt.ylabel("Cluster")
-    plt.title(f"{col} vs Cluster")
-    plt.legend()
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection='3d')
+for c in df_cluster["cluster"].unique():
+    subset = df_cluster[df_cluster["cluster"]==c]
+    ax.scatter(subset["acc_x"], subset["acc_y"], subset["acc_z"], label=c)
+ax.set_xlabel("acc_x")
+ax.set_ylabel("acc_y")
+ax.set_zlabel("acc_z")
+plt.legend()
+plt.show()
+
+
+# plot clusters
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection='3d')
+for l in df_cluster["label"].unique():
+    subset = df_cluster[df_cluster["label"]==l]
+    ax.scatter(subset["acc_x"], subset["acc_y"], subset["acc_z"], label=l)
+ax.set_xlabel("acc_x")
+ax.set_ylabel("acc_y")
+ax.set_zlabel("acc_z")
+plt.legend()
 plt.show()
 
 # --------------------------------------------------------------

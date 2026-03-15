@@ -109,6 +109,27 @@ subset = df_squared[df_squared["set"]==14]
 subset[["acc_r", "gyr_r"]].plot(subplots=True, figsize=(20, 10))
 
 df_squared
+
+# --------------------------------------------------------------
+# Plot magnitude signal for report
+# --------------------------------------------------------------
+
+subset = df_squared[df_squared["set"] == 14]
+
+plt.figure()
+
+plt.plot(subset.index, subset["acc_x"], label="acc_x")
+plt.plot(subset.index, subset["acc_y"], label="acc_y")
+plt.plot(subset.index, subset["acc_z"], label="acc_z")
+plt.plot(subset.index, subset["acc_r"], label="acc_magnitude")
+
+plt.xlabel("Time")
+plt.ylabel("Acceleration")
+plt.title("Accelerometer Magnitude Signal")
+plt.legend()
+
+plt.tight_layout()
+
 # --------------------------------------------------------------
 # Temporal abstraction
 # --------------------------------------------------------------

@@ -27,7 +27,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 fig, ax = plt.subplots(figsize=(10, 5))
 df_train["label"].value_counts().plot(
-    Kind="bar", ax=ax, color="Lightblue", label="Total"
+    kind="bar", ax=ax, color="Lightblue", label="Total"
 )
 
 y_train.value_counts().plot(kind="bar", ax=ax, color="dodgerblue", label="Train")
@@ -210,7 +210,7 @@ sns.barplot(x="model", y="accuracy", hue="feature_set", data=score_df)
 plt.xlabel("Model")
 plt.ylabel("Accuracy")
 plt.ylim(0.7, 1)
-plt.legend(loc=" lower right")
+plt.legend(loc="lower right")
 plt.show()
 
 # --------------------------------------------------------------
@@ -241,19 +241,23 @@ tick_marks = np.arange(len(classes))
 plt.xticks(tick_marks, classes, rotation=45)
 plt.yticks(tick_marks, classes)
 
-thresh = cm.max() / 2.0
-for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-    plt.text(
-        j,
-        i,
-        format(cm[i, j]),
-        horizontalalignment="center",
-        color="white" if cm[i, j] > thresh else "black",
-    )
+plt.figure(figsize=(8, 6))
+
+sns.heatmap(
+    cm,
+    annot=True,              # replaces plt.text loop
+    fmt="d",                 # integer values
+    cmap="Blues",
+    xticklabels=classes,
+    yticklabels=classes,
+    cbar=True
+)
 
 plt.ylabel("True label")
 plt.xlabel("Predicted label")
+plt.title("Confusion Matrix")
 plt.grid(False)
+
 plt.show()
 
 # --------------------------------------------------------------
@@ -308,21 +312,14 @@ tick_marks = np.arange(len(classes))
 plt.xticks(tick_marks, classes, rotation=45)
 plt.yticks(tick_marks, classes)
 
-thresh = cm.max() / 2.0
-for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-    plt.text(
-        j,
-        i,
-        format(cm[i, j]),
-        horizontalalignment="center",
-        color="white" if cm[i, j] > thresh else "black",
-    )
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=classes, yticklabels=classes)
 
 plt.ylabel("True label")
 plt.xlabel("Predicted label")
-plt.grid(False)
+plt.title("Confusion Matrix")
 plt.show()
-
 # --------------------------------------------------------------
 # Try a simpler model with the selected features
 # --------------------------------------------------------------

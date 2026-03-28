@@ -44,7 +44,7 @@ square_features = ["acc_r", "gyr_r"]
 pca_features = ["pca_1", "pca_2", "pca_3"]
 
 time_features = [f for f in df_train.columns if "_temp_" in f]
-freq_features = [f for f in df_train.columns if ("_freq_" in f) or ("_pse_" in f)]
+freq_features = [f for f in df_train.columns if ("_freq" in f) or ("_pse_" in f)]
 cluster_features = ["cluster"]
 
 print("Basic features:", len(basic_features))

@@ -1,3 +1,104 @@
-## Data Science Project Template
+# 🏋️ Fitness Tracker using Machine Learning
 
-You can use this template to structure your Python data science projects. It is based on [Cookie Cutter Data Science](https://drivendata.github.io/cookiecutter-data-science/).
+A complete end-to-end machine learning project for classifying barbell exercises and counting repetitions using wearable sensor data (accelerometer + gyroscope).
+
+---
+
+## 📌 Project Overview
+
+This project builds a full ML pipeline that transforms raw sensor data into meaningful fitness insights:
+
+- 🏷️ Exercise Classification (Bench Press, Squat, Row, etc.)
+- 🔁 Repetition Counting using signal processing
+- 📊 Performance analysis across multiple users
+
+---
+
+## ⚙️ Machine Learning Pipeline
+
+1. Data Collection (Wearable Sensors)
+2. Data Cleaning & Preprocessing
+3. Exploratory Data Analysis (EDA)
+4. Outlier Detection
+5. Feature Engineering
+6. Model Training & Evaluation
+7. Repetition Counting Algorithm
+
+---
+
+## 🤖 Models Implemented
+
+- Naive Bayes
+- K-Nearest Neighbors (KNN)
+- Decision Tree
+- Random Forest ⭐ (Best Performance)
+- Neural Network
+
+---
+
+## 📊 Results
+
+- ✅ ~99% Accuracy using Random Forest
+- ✅ Strong generalization across users
+- ✅ Reliable repetition counting
+
+---
+
+## 📂 Project Structure
+```text
+data/ # Raw and processed datasets
+notebooks/ # Analysis and experimentation
+src/ # Core ML pipeline (features, models, visualization)
+reports/
+├── final_report/
+│   ├── main.tex
+│   ├── figures/
+│   ├── references.bib
+│   └── final_report.pdf
+└── presentation/
+    ├── presentation.pdf
+    └── presentation.pptx
+assets/ # Images for README (plots, pipeline, etc.)
+```
+
+---
+
+## 🧠 Project Pipeline
+
+![Pipeline](reports/figures/pipeline.png)
+
+---
+
+## 📊 Sample Results
+
+![Confusion Matrix](reports/figures/figures/confusion_matrix.png)
+
+---
+
+## 📎 Documentation
+
+- 📄 Final Report: `reports/ML_Fitness_Tracker_Project.pdf`
+- 🎤 Presentation: `reports/ML_Fitness_Tracker_Project.pptx`
+
+---
+
+## 🚀 How to Run
+
+```bash
+pip install -r requirements.txt
+```
+Run notebooks or scripts from the `src/` directory.
+
+---
+
+## 👨‍💻 Contributors
+
+- **Mohammed Eid** — [GitHub Profile](https://github.com/M0hamed-Eid)
+- **Ahmed Hossam** — [GitHub Profile](https://github.com/AhmedxHossam)
+- **Mohammed Salah** — [GitHub Profile](https://github.com/msalah65654-hue)
+
+---
+
+
+## 🔗 Repository
+👉 [https://github.com/M0hamed-Eid/FitnessTracker](https://github.com/M0hamed-Eid/FitnessTracker)

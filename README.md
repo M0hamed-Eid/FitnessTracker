@@ -46,10 +46,12 @@ This project builds a full ML pipeline that transforms raw sensor data into mean
 
 ## 📂 Project Structure
 ```text
-data/ # Raw and processed datasets
-notebooks/ # Analysis and experimentation
-src/ # Core ML pipeline (features, models, visualization)
-reports/
+data/              # Raw, interim, and processed datasets
+docs/              # Project documentation
+models/            # Trained models and predictions
+notebooks/         # Analysis and experimentation notebooks
+references/        # Data dictionaries and manuals
+reports/           # Generated analysis and reports
 ├── final_report/
 │   ├── main.tex
 │   ├── figures/
@@ -58,7 +60,10 @@ reports/
 └── presentation/
     ├── presentation.pdf
     └── presentation.pptx
-assets/ # Images for README (plots, pipeline, etc.)
+src/               # Core ML pipeline (data, features, models, visualization)
+environment.yml    # Conda environment configuration
+README.md          # Project overview
+requirements.txt   # Python package dependencies
 ```
 
 ---
